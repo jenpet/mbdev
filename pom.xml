@@ -18,16 +18,21 @@
         <!-- Dependency versions-->
         <open-feign-version>9.6.0</open-feign-version>
         <lombok-version>1.16.20</lombok-version>
+        <guava-version>24.1-jre</guava-version>
 
         <!-- Test dependency versions -->
         <mockito-version>2.18.0</mockito-version>
         <assertj-version>3.9.1</assertj-version>
         <junit-version>4.12</junit-version>
+        <wiremock-version>2.16.0</wiremock-version>
+        <logger-version>2.11.0</logger-version>
     </properties>
 
     <modules>
+        <module>api-auth</module>
         <module>api-common</module>
         <module>connected-vehicle</module>
+        <module>mbdev-samples</module>
     </modules>
 
     <dependencyManagement>
@@ -48,6 +53,16 @@
                 <artifactId>feign-jackson</artifactId>
                 <version>${open-feign-version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>${logger-version}</version>
+            </dependency>
 
 
             <dependency>
@@ -66,6 +81,12 @@
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
                 <version>${assertj-version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.github.tomakehurst</groupId>
+                <artifactId>wiremock</artifactId>
+                <version>${wiremock-version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

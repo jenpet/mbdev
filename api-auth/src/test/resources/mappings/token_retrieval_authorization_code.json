@@ -1,0 +1,31 @@
+{
+  "id" : "95ccf779-1b5b-4e93-a299-78b1d37204ea",
+  "name" : "oidc10_auth_oauth_v2_token",
+  "request" : {
+    "url" : "/oidc10/auth/oauth/v2/token",
+    "method" : "POST",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ="
+      }
+    },
+    "bodyPatterns" : [ {
+      "equalTo" : "grant_type=authorization_code&code=28231715-ef6c-4742-9914-498d4aa391bf&redirect_uri=http%3A%2F%2Flocalhost",
+      "caseInsensitive" : false
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\r\n  \"access_token\":\"5957805d-e0e8-4ddc-b59f-b7c35ae1cdc2\",\r\n  \"token_type\":\"Bearer\",\r\n  \"expires_in\":3600,\r\n  \"refresh_token\":\"a89b41e5-15a6-48b3-b959-a03098b3b0e0\",\r\n  \"scope\":\"mb:vehicle:status:general mb:user:pool:reader\"\r\n}",
+    "headers" : {
+      "Pragma" : "no-cache",
+      "Cache-Control" : "no-store",
+      "Content-Type" : "application/json;charset=UTF-8",
+      "Date" : "Tue, 01 May 2018 07:45:44 GMT",
+      "Set-Cookie" : "TS015cbe2e=017da4bfe79fb3bdbe962e59b3b7ba2b6b09ee1ed858c004e3e1b9a2dbf90c7f6f13ba030209e9c9cbb3167002a34716119630d0a2; Path=/"
+    }
+  },
+  "uuid" : "95ccf779-1b5b-4e93-a299-78b1d37204ea",
+  "persistent" : true,
+  "insertionIndex" : 3
+}

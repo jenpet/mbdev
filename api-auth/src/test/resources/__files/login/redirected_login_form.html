@@ -1,0 +1,321 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+<head>
+
+
+    <script>window['adrum-start-time'] = new Date().getTime();</script>
+    <script src='//places.mercedes-benz.com/CIAM-PROD/adrum.js'></script>
+
+
+    <meta name="version" content="5.0.0.0" />
+    <meta name="revision" content="2755ae3" />
+
+    <link rel="stylesheet" href="https://cdn-iam.mercedes-benz.com/profile/bootstrap/css/bootstrap.custom.stripped.min-2755ae3.css"/>
+
+    <!--[if !IE]><!-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <!--<![endif]-->
+
+    <link rel="stylesheet" href="https://login.secure.mercedes-benz.com/profile/css/ONEAPI.PROD-5539433662755ae3.css?lang="/>
+
+    <title>
+
+
+        Log in
+
+    </title>
+
+    <script type="text/javascript" src="https://login.secure.mercedes-benz.com/profile/jquery/js/jquery-3.2.0.min.js"></script>
+    <script type="text/javascript" src="https://login.secure.mercedes-benz.com/profile/js/profile-merged-2755ae3.min.js"></script>
+    <script type="text/javascript" src="https://login.secure.mercedes-benz.com/profile/s/translations_en_US.js?r=2755ae3"></script>
+
+    <script type="text/javascript">
+        isDocumentFullyLoaded = false;
+        /*
+ * Temporary work around for mobile IE 10 device/viewport width issue
+ * See: http://getbootstrap.com/getting-started/#browsers
+ */
+        if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+            var msViewportStyle = document.createElement("style");
+            msViewportStyle.appendChild(
+                document.createTextNode(
+                    "@-ms-viewport{width:auto!important}"
+                )
+            );
+            document.getElementsByTagName("head")[0].appendChild(msViewportStyle)
+        }
+
+
+        $(document).ready(function () {
+            $("input[value=''],input:not([value])", document).not(":hidden").first().focus();
+            $('form').submit(function () {
+                blurAllInputElements();
+            });
+        });
+
+
+    </script>
+
+</head>
+
+<body class="embedded">
+
+<div id="ciam-container" class="ciam-background-image">
+
+    <!-- H.E.A.D.E.R. -->
+    <div id="page-header">
+    <span id="ciam-weblogin-header-title" class="ciam-logo page-title">
+
+
+            Log in
+
+    </span>
+        <span id="ciam-legal-text-header-title" class="ciam-logo page-title"/>
+    </div>
+
+
+
+
+    <script type="text/javascript">
+        LOGIN_HISTORY = "[]";
+
+        $(document).ready(function () {
+
+            $.ajax({
+                type: "GET",
+                url: "/wl/third-party-cookie?app-id=ONEAPI.PROD",
+                error: function (jqXHR, status, error) {
+                    if (jqXHR != null && jqXHR.status == 400) {
+                        $.ajax({
+                            type: "GET",
+                            url: "/wl/third-party-cookie?app-id=ONEAPI.PROD",
+                            error: function (jqXHR, status, error) {
+                                if (jqXHR != null && jqXHR.status == 400) {
+                                    $('#page-content').html(THIRD_PARTY_COOKIES_DISABLED_MESSAGE);
+                                    $('#ciam-description').hide();
+                                    resizeIFrame();
+                                } else {
+                                    log("Second third party cookie check failed. Ignore it.")
+                                }
+                            }
+                        });
+                    } else {
+                        log("Third party cookie check failed. Ignore it.")
+                    }
+                }
+            });
+
+            bindValidation("#name", validateEmailOrPhone);
+
+            $('form').submit(function () {
+                var userName = normalizePhoneNumber($('#name').val());
+                $('#name').val(userName);
+                document.cookie = 'last-user-id=' + userName;
+            });
+
+            $('input').keydown(function (event) {
+                checkShiftSubmission(event);
+            });
+
+            $('button[type="submit"]').click(function (event) {
+                checkShiftSubmission(event);
+            });
+
+            resizeIFrame();
+        });
+
+    </script>
+
+
+    <!-- D.E.S.C.R.I.P.T.I.O.N. -->
+    <div id="ciam-description" class="ciam-explanation">
+        Please enter your log-in data.
+    </div>
+
+
+    <!-- C.O.N.T.E.N.T. -->
+    <div id="page-content" class="">
+
+        <div class="page-content-width-limit">
+
+            <form id="formLogin" action="/wl/login" method="POST" class="form-horizontal no-obvious-asterisk" role="form">
+                <input type="hidden" name="SMAUTHREASON" value="">
+                <input type="hidden" name="target" value="">
+                <input type="hidden" name="acr_values" value="">
+
+                <input type="hidden" name="sessionID" value="070027d2-5bd3-4038-8903-e2007a2e14b1">
+
+
+                <input type="hidden" name="sessionData" value="eyJ0eXAiOiJKV1QiLCJhbGci...KfQ.zoINDytohLmYv1bTKABqnIu8wLS4pETEakcdnnkLF40">
+
+
+
+
+
+
+                <input type="hidden" name="t" value="">
+                <input type="hidden" name="app-id" value="ONEAPI.PROD">
+                <input type="hidden" name="lang" value="en_US">
+
+                <div class="vertical-input-form">
+
+                    <!-- General Error -->
+
+
+                    <!-- Username -->
+                    <div class="form-group mandatory">
+                        <label for="name" class="col-md-12 control-label">
+                            <div class="label-text-wrapper">
+                                <div class="label-spacer"></div>
+                                <span>E-mail address or cell phone number</span>
+                            </div>
+                        </label>
+
+                        <div class="col-md-12">
+
+
+
+                            <input type="text"
+                                   class="form-control input-sm fvalue"
+                                   id="name"
+                                   name="username"
+                                   value=""
+                                   placeholder=""/>
+
+
+
+                            <div class="error-msg-placement"></div>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group mandatory">
+                        <label for="password" class="col-md-12 control-label">
+                            <div class="label-text-wrapper">
+                                <div class="label-spacer"></div>
+                                <span>Password</span>
+                            </div>
+                        </label>
+
+                        <div class="col-md-12">
+                            <input type="password"
+                                   class="form-control input-sm fvalue"
+                                   id="password"
+                                   name="password"
+                                   maxlength="25"
+                                   value=""
+                                   autocomplete="off"
+                                   placeholder=""/>
+
+                            <div class="error-msg-placement"></div>
+                        </div>
+                    </div>
+
+                    <!-- Captcha -->
+
+
+                    <!-- Remember Me -->
+
+
+                    <!-- Buttons -->
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <div class="button-container">
+                                <button id="ciam-weblogin-auth-login-button" class="btn btn-primary btn-sm" type="submit">
+                                    Login
+                                </button>
+
+                                <div class="link-container">
+                                    <p><a id="ciam-weblogin-auth-reset-password-link"
+                                          href="/profile/reset-password?app-id=ONEAPI.PROD">
+                                        Forgot password?
+                                    </a></p>
+                                </div>
+
+
+                                <label for="ciam-weblogin-auth-register-link" class="control-label">Do you already have an account?</label>
+                                <a id="ciam-weblogin-auth-register-link" class="btn btn-sm"
+                                   href="/profile/register?app-id=ONEAPI.PROD">
+                                    Register now
+                                </a>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Social Network -->
+
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="ciam-footer">
+
+        <div>
+            <a id="ciam-weblogin-footer-terms-link"
+               href="javascript:displayLegalTextTerms('/profile/s/legaltexts/terms?app-id=ONEAPI.PROD')">Access conditions</a> |
+            <a id="ciam-weblogin-footer-cookies-link"
+               href="javascript:displayLegalTextCookies('/profile/s/legaltexts/cookies?app-id=ONEAPI.PROD')">Cookies</a>
+
+
+            | <a id="ciam-weblogin-footer-privacy-link"
+                 href="javascript:displayLegalTextPrivacy('/profile/s/legaltexts/privacy?app-id=ONEAPI.PROD')">Data privacy</a>
+
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript" src="https://login.secure.mercedes-benz.com/profile/bootstrap/js/bootstrap.custom.stripped.min.js"></script>
+
+<!--[if lt IE 9]>
+<script type="text/javascript" src="https://login.secure.mercedes-benz.com/profile/js/respond.min.js"></script>
+<![endif]-->
+
+</body>
+</html>
+

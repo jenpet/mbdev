@@ -13,3 +13,6 @@ buildNumber.properties
 
 *.iml
 .idea/
+
+# Sample data
+mbdev-config.json
