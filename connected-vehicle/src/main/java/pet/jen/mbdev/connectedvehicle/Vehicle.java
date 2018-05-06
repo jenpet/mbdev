@@ -1,7 +1,12 @@
-package pet.jen.mbdev.connectedvehicle.domain;
+package pet.jen.mbdev.connectedvehicle;
 
 import lombok.Data;
 
+/**
+ * POJO representation of vehicle returned via JSON from the API.
+ *
+ * @author Jens Petersohn <me@jen.pet>
+ */
 @Data
 public class Vehicle {
     private String id;

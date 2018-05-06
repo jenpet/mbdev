@@ -8,7 +8,7 @@ public class MBDevApiFactoryTest {
 
     @Test
     public void testCreate_shouldCreateFeignClientForInputClass() throws Exception {
-        assertThat(MBDevApiFactory.create(TestClient.class, "/")).isInstanceOf(TestClient.class);
+        assertThat(MBDevApiFactory.create(TestClient.class, "/", null)).isInstanceOf(TestClient.class);
     }
 
     private interface TestClient {}
