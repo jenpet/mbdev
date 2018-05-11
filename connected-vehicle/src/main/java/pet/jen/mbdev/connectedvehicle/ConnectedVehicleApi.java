@@ -17,6 +17,6 @@ public interface ConnectedVehicleApi {
     @RequestLine("GET /vehicles")
     List<Vehicle> vehicles();
 
-    @RequestLine("GET /vehicles/{vin}")
-    Vehicle vehicle(@Param("vin") String id);
+    @RequestLine("GET /vehicles/{id}")
+    Vehicle vehicle(@Param("id") String id);
 }

@@ -14,7 +14,7 @@
     </properties>
 
     <artifactId>api-common</artifactId>
-    <name>Mercedes Benz Developer API Common</name>
+    <name>API Common Module</name>
 
     <dependencies>
         <dependency>

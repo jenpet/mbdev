@@ -32,7 +32,7 @@ public class MBDevApiFactory {
     }
 
     /**
-     * Wraps a feign client into a proxy class which covers the
+     * Wraps a feign client into a proxy class which handles the potential invalidity of tokens gracefully.
      *
      * @param apiType class type of the target class
      * @param feignClient target object itself

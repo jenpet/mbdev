@@ -58,10 +58,16 @@ public class AuthorizationFlowHandler {
     }
 
     /**
-     * Initializes the OAuth flow
-     * @param username
-     * @param password
-     * @return
+     * Initializes the OAuth flow and handles every step's result and error gracefully. Eventually it returns a
+     * implementation of the {@link TokenProvider} interface which is required to target the corresponding APIs.
+     *
+     * If any of the performed steps throws a {@link SessionRetrievalException}, {@link UserLoginFailedException} or
+     * {@link UserConsentException} a general {@link AuthorizationInitializationException} will be thrown indicating that
+     * the flow could not be completed.
+     *
+     * @param username of the user for which a token provider is required
+     * @param password of the user for which a token provider is required
+     * @return a valid token provider which can be used to authenticate against the API
      */
     public TokenProvider authorize(String username, String password) {
         try {
@@ -168,7 +174,7 @@ public class AuthorizationFlowHandler {
     /**
      * Converts the cause of the {@link RetryableException} to a {@link HttpRetryException} to extract
      * the code from the exception's location attribute.
-     * @param e RetryableException which has a {@link HttpRetryException} as a cause.
+     * @param e {@link RetryableException}which has a {@link HttpRetryException} as a cause.
      * @return the extracted authorization code
      */
     private String extractCodeFromException(RetryableException e) {

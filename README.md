@@ -5,7 +5,13 @@ since mid-end of 2017. Due to the latest enhancements of 2018 it now seems to be
 or at least one of them. The most beneficial domain for vehicle addicted developers is the [Connected Vehicle API](https://developer.mercedes-benz.com/apis/connected_vehicle_experimental_api)
 which is currently in an _experimental_ state but already provides some insights on how the upcoming API might behave.
 
-This library can be used in Java front-ends and in clients (target version 1.8) to access the API. It is based on 
+This library can be used in Java front-ends and in clients (target version 1.8) to access the API. It is based on the [feign client](https://github.com/OpenFeign/feign) library which
+makes it super easy to enhance the API interfaces. Thus the library is super flexible regarding REST API changes which will
+_definitely_ come.
+
+**Notice:** the focus is currently clearly laid on the mechanisms to enable a general API usage super easy, **not** the diversity
+of interfaces. The only API barely supported is the [Connected Vehicle API](https://developer.mercedes-benz.com/apis/connected_vehicle_experimental_api). Feel
+free to enhance the interfaces or add new packages as a contributor. If you need custom MBDev API adapter implementations check the [API Common Module](./api-common/README.md). 
 
 ## Authentication
 All of the APIs are secured using [OAuth 2.0](https://tools.ietf.org/html/rfc6749) for which quite a lot of detailed information is described [here](https://developer.mercedes-benz.com/content-page/oauth-documentation).
