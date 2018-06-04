@@ -3,6 +3,7 @@ package pet.jen.mbdev.api.auth.domain;
 import com.google.common.base.Strings;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class OAuthConfig {
      * @return formatted scopes for further usage on API level.
      */
     public String getScopes() {
-        return String.join(" ", this.scopes);
+        return StringUtils.collectionToDelimitedString(this.scopes, " ");
     }
 
 
