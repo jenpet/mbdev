@@ -8,10 +8,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import pet.jen.mbdev.api.auth.exception.AuthCodeException;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
@@ -44,8 +41,8 @@ public class ConsentRedirectDecoderTest {
 
     @Test
     public void testDecode_whenResponseStatusIsNot302_shouldReturnFeignException() {
-        Request request = mockRequest("http://localhost/oidc10/auth/oauth/v2/authorize/consent", new HashMap<>());
-        Response response = Response.builder().headers(new HashMap<>()).status(400).request(request).build();
+        Request request = mockRequest("http://localhost/oidc10/auth/oauth/v2/authorize/consent", new HashMap<String, Collection<String>>());
+        Response response = Response.builder().headers(new HashMap<String, Collection<String>>()).status(400).request(request).build();
         Exception exception = decoder.decode("method", response);
         assertThat(exception).isInstanceOf(FeignException.class);
     }

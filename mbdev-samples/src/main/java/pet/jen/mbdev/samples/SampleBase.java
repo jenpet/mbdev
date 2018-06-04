@@ -4,7 +4,6 @@ import javax.net.ssl.*;
 import java.security.cert.X509Certificate;
 
 public class SampleBase {
-
     // http://www.rgagnon.com/javadetails/java-fix-certificate-problem-in-HTTPS.html
     protected static void trustAllHosts() throws Exception {
         TrustManager[] trustAllCerts = new TrustManager[] {
@@ -22,8 +21,15 @@ public class SampleBase {
         HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 
         // Create all-trusting host name verifier
-        HostnameVerifier allHostsValid = (hostname, session) -> true;
+        HostnameVerifier allHostsValid = new Verifier();
         // Install the all-trusting host verifier
         HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+    }
+
+    private static class Verifier implements HostnameVerifier {
+        @Override
+        public boolean verify(String s, SSLSession sslSession) {
+            return true;
+        }
     }
 }
