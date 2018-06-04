@@ -7,7 +7,7 @@
 
     <groupId>pet.jen.mbdev</groupId>
     <artifactId>mbdev-build</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.2</version>
     <name>Mercedes Benz Developer API Library</name>
     <packaging>pom</packaging>
 
