@@ -1,6 +1,10 @@
 package pet.jen.mbdev.api.auth.domain;
 
-import jodd.jerry.Jerry;
+
+import com.google.common.base.Strings;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 /**
  * Represents a HTML body which is mainly only needed to extract input field values as strings.
@@ -12,21 +16,22 @@ import jodd.jerry.Jerry;
  */
 class HtmlBody {
 
-    private Jerry doc;
+    private Document doc;
 
     HtmlBody(String html) {
-        doc = Jerry.jerry(html);
+        doc = Jsoup.parse(html);
     }
 
     public String extractInputFieldValue(String fieldName) {
-        Jerry field = this.doc.$("input[name=" + fieldName+ "]");
-        if(field.length() != 1) {
+        Elements fields = this.doc.select("input[name=" + fieldName+ "]");
+
+        if(fields.size() != 1) {
             throw new IllegalArgumentException("Could not extract field `" + fieldName + "` since there were more than one" +
                     " or no fields at all within the given body.");
         }
-        if(field.attr("value") == null) {
+        if(Strings.isNullOrEmpty(fields.attr("value"))) {
             throw new IllegalArgumentException("Could not extract field `" + fieldName + "` since attribute named value is not available.");
         }
-        return field.attr("value");
+        return fields.attr("value");
     }
 }

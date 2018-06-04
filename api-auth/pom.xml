@@ -14,6 +14,7 @@
         <jodd-version>v4.3.2</jodd-version>
         <commonsio-version>2.6</commonsio-version>
         <open-feign-form-version>3.3.0</open-feign-form-version>
+        <jsoup-version>1.8.3</jsoup-version>
     </properties>
 
     <artifactId>api-auth</artifactId>
@@ -54,10 +55,11 @@
             <version>${commonsio-version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.oblac</groupId>
-            <artifactId>jodd</artifactId>
-            <version>${jodd-version}</version>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup-version}</version>
         </dependency>
+
 
         <dependency>
             <groupId>junit</groupId>
