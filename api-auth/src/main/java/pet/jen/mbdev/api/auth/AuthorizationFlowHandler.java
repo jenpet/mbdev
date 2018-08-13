@@ -40,14 +40,9 @@ public class AuthorizationFlowHandler {
         if(!config.isValid()) {
             throw new IllegalArgumentException("The provided OAuth configuration was not valid. Please mandatory attributes.");
         }
-        return new AuthorizationFlowHandler(Feign.builder()
-                        .encoder(new FormEncoder())
-                        .errorDecoder(new ConsentRedirectDecoder()) // custom error decoder which should be only invoked from an invalid redirect
-                        .retryer(Retryer.Default.NEVER_RETRY)
-                        .target(AuthorizationApi.class, config.getAuthorizationBaseUrl()),
-                Feign.builder()
-                        .encoder(new FormEncoder())
-                        .target(LoginApi.class, config.getLoginBaseUrl()),
+        return new AuthorizationFlowHandler(
+                createAuthorizationApiClient(config),
+                createLoginApiClient(config),
                 config);
     }
 
@@ -180,5 +175,19 @@ public class AuthorizationFlowHandler {
     private String extractCodeFromException(RetryableException e) {
         HttpRetryException retryException = (HttpRetryException) e.getCause();
         return AuthCodeExtractor.extract(retryException.getLocation());
+    }
+
+    private static AuthorizationApi createAuthorizationApiClient(OAuthConfig config) {
+        return Feign.builder()
+                .encoder(new FormEncoder())
+                .errorDecoder(new ConsentRedirectDecoder()) // custom error decoder which should be only invoked from an invalid redirect
+                .retryer(Retryer.Default.NEVER_RETRY)
+                .target(AuthorizationApi.class, config.getAuthorizationBaseUrl());
+    }
+
+    private static LoginApi createLoginApiClient(OAuthConfig config) {
+        return Feign.builder()
+                .encoder(new FormEncoder())
+                .target(LoginApi.class, config.getLoginBaseUrl());
     }
 }

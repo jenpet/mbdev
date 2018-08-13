@@ -7,9 +7,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import pet.jen.mbdev.api.TokenProvider;
 import pet.jen.mbdev.api.auth.client.AuthorizationApi;
 import pet.jen.mbdev.api.auth.client.LoginApi;
+import pet.jen.mbdev.api.auth.client.TokenApi;
 import pet.jen.mbdev.api.auth.domain.ConsentInformation;
 import pet.jen.mbdev.api.auth.domain.OAuthConfig;
 import pet.jen.mbdev.api.auth.domain.SessionInformation;
@@ -26,6 +26,9 @@ public class AuthorizationFlowHandlerTest extends BaseAuthorizationTest {
 
     @Mock
     private LoginApi loginApi;
+
+    @Mock
+    private TokenApi tokenApi;
 
     private AuthorizationFlowHandler authorizationFlowHandler;
     private OAuthConfig defaultConfig;
@@ -139,27 +142,6 @@ public class AuthorizationFlowHandlerTest extends BaseAuthorizationTest {
                 eq("sessionData")
         );
         authorizationFlowHandler.submitUserConsent(createConsentInfo(createSessionInfo()));
-    }
-
-
-    @Test
-    public void testLogin_whenClientFlowSucceeds_shouldReturnAuthorizationProvider() throws Exception {
-        Mockito.when(authorizationApi.authorize(eq("client-id"), eq("http://localhost"), eq("scope1 scope2")))
-                .thenReturn(resourceAsString("__files/login/redirected_login_form.html"));
-        Mockito.when(loginApi.login(
-                eq("ONEAPI.PROD"),
-                eq("070027d2-5bd3-4038-8903-e2007a2e14b1"),
-                eq("eyJ0eXAiOiJKV1QiLCJhbGci...KfQ.zoINDytohLmYv1bTKABqnIu8wLS4pETEakcdnnkLF40"),
-                eq("username"),
-                eq("password"))).thenReturn(resourceAsString("__files/login/consent_form.html"));
-        Mockito.doThrow(new AuthCodeException("authorization-token"))
-                .when(authorizationApi)
-                .postConsent(
-                        eq("Grant"),
-                        eq("849cc52b-9ca4-4ec1-b1c6-c26ae9e398ed"),
-                        eq("eyJjdHkiO..._t7wrqQ"));
-        TokenProvider tokenProvider = authorizationFlowHandler.authorize("username", "password");
-        assertThat(tokenProvider).isNotNull();
     }
 
     @Test(expected = AuthorizationInitializationException.class)

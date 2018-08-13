@@ -1,6 +1,5 @@
 package pet.jen.mbdev.api.auth;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -23,25 +22,26 @@ public class OAuthTokenProviderTest extends BaseAuthorizationTest {
 
     private OAuthTokenProvider provider;
 
-    @Before
-    public void setup() {
-        provider = new OAuthTokenProvider(tokenApi, createDefaultConfig(), "auth-code");
-    }
-
     @Test
-    public void testGetAccessToken_whenNotInitialized_shouldInitiallyRetrieveTokens() {
-        assertThat(provider.getLastUpdate()).isNull();
-        assertThat(provider.getTokenInfo()).isNull();
-
-        assertThat(initialRetrieval(0)).isEqualTo("access-token-0");
-
+    public void testInitialize_whenAccessCodeIsProvided_shouldInitiallyRetrieveTokens() {
+        mockAuthCodeCall(0);
+        provider = new OAuthTokenProvider(tokenApi, createDefaultConfig(), "auth-code");
         assertThat(provider.getLastUpdate()).isNotNull();
         assertThat(provider.getTokenInfo()).isNotNull();
+        assertThat(provider.getTokenInfo().getAccessToken()).isNotNull();
+        assertThat(provider.getTokenInfo().getRefreshToken()).isNotNull();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testGetAccessToken_whenProviderIsNotInitialized_shouldThrowIllegalStateException() {
+        provider = new OAuthTokenProvider(tokenApi, createDefaultConfig(), "auth-code");
+        provider.getAccessToken();
     }
 
     @Test
     public void testRefreshTokens_shouldRetrieveNewTokenInformationAndUpdateAccordingAttributes() throws Exception {
-        initialRetrieval(0);
+        mockAuthCodeCall(0);
+        provider = new OAuthTokenProvider(tokenApi, createDefaultConfig(), "auth-code");
         TimeUnit.MILLISECONDS.sleep(1);
         Long oldUpdate = provider.getLastUpdate();
         TokenInformation oldTokens = provider.getTokenInfo();
@@ -57,7 +57,8 @@ public class OAuthTokenProviderTest extends BaseAuthorizationTest {
 
     @Test
     public void testGetAccessToken_whenTokensAreExpired_shouldRefreshTokensAndReturnNewAccessToken() throws Exception {
-        initialRetrieval(0);
+        mockAuthCodeCall(0);
+        provider = new OAuthTokenProvider(tokenApi, createDefaultConfig(), "auth-code");
         TimeUnit.SECONDS.sleep(1);
         Mockito.when(tokenApi.refresh(
                 eq("refresh_token"),
@@ -68,18 +69,18 @@ public class OAuthTokenProviderTest extends BaseAuthorizationTest {
     }
 
     @Test
-    public void testGetAccessToken_whenTokensAreNotExpired_shouldJustReturnTheCurrentAccessToken() throws Exception {
-        initialRetrieval(5);
+    public void testGetAccessToken_whenTokensAreNotExpired_shouldJustReturnTheCurrentAccessToken() {
+        mockAuthCodeCall(5);
+        provider = new OAuthTokenProvider(tokenApi, createDefaultConfig(), "auth-code");
         assertThat(provider.getAccessToken()).isEqualTo("access-token-0");
         Mockito.verify(tokenApi, Mockito.times(0)).refresh(anyString(), anyString());
     }
 
-    private String initialRetrieval(int expiry) {
+    private void mockAuthCodeCall(int expiry) {
         Mockito.when(tokenApi.retrieve(
                 eq("authorization_code"),
                 eq("auth-code"),
                 eq("http://localhost"))).thenReturn(createTokens(0, expiry));
-        return provider.getAccessToken();
     }
 
     private TokenInformation createTokens(int id, int expiry) {

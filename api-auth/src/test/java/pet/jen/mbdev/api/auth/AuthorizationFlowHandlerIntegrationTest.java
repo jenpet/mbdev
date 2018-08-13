@@ -12,5 +12,6 @@ public class AuthorizationFlowHandlerIntegrationTest extends BaseAuthorizationIn
         AuthorizationFlowHandler handler = AuthorizationFlowHandler.setup(createConfig());
         TokenProvider tokenProvider = handler.authorize("username", "password");
         assertThat(tokenProvider).isNotNull();
+        assertThat(tokenProvider.getAccessToken()).isNotNull();
     }
 }

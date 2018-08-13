@@ -38,33 +38,37 @@ class OAuthTokenProvider implements TokenProvider {
 
     /**
      * Creates the token provider based on the configuration of the OAuth flow and the authorization code.
+     *
+     * Provider initialization should make the initial token retrieval call since the first invocation of getAccessToken() might
+     * beyond the authCode's time of validity which causes the call to fail.
+     *
      * @param config OAuth details required for token handling
      * @param authCode code to retrieve tokens initially
-     */
-    OAuthTokenProvider(OAuthConfig config, String authCode) {
-        this(Feign.builder()
-                .encoder(new FormEncoder())
-                .decoder(new JacksonDecoder())
-                .requestInterceptor(new BasicAuthRequestInterceptor(config.getClientId(), config.getClientSecret()))
-                .target(TokenApi.class, config.getAuthorizationBaseUrl()),
-                config,
-                authCode);
-    }
-
-    /**
-     * Convenience method.
      */
     OAuthTokenProvider(TokenApi tokenApi, OAuthConfig config, String authCode) {
         this.tokenApi = tokenApi;
         this.config = config;
         this.authCode = authCode;
+        // immediately initialize tokens to use fresh auth code
+        initTokens();
     }
+
+    /**
+     * Convenience method of {@link OAuthTokenProvider} constructor to have the default api token client.
+     *
+     * @param config OAuth details required for token handling
+     * @param authCode code to retrieve tokens initially
+     */
+    OAuthTokenProvider(OAuthConfig config, String authCode) {
+        this(createTokenApiClient(config), config, authCode);
+    }
+
 
     @Override
     public String getAccessToken() {
-        // initial situations - requires a query
+        // if tokens are not initialized throw exception
         if(this.getLastUpdate() == null || this.getTokenInfo() == null) {
-            initTokens();
+            throw new IllegalStateException("Impossible to return access token since token provider was not properly initialized.");
         } else if(lastUpdate + latestTokenInfo.getExpiresIn() - config.getTokenExpiryBuffer() <= new Date().getTime()) {
             refreshTokens();
         }
@@ -99,5 +103,13 @@ class OAuthTokenProvider implements TokenProvider {
      */
     private void updateTimestamp() {
         this.lastUpdate = new Date().getTime();
+    }
+
+    private static TokenApi createTokenApiClient(OAuthConfig config) {
+        return Feign.builder()
+                .encoder(new FormEncoder())
+                .decoder(new JacksonDecoder())
+                .requestInterceptor(new BasicAuthRequestInterceptor(config.getClientId(), config.getClientSecret()))
+                .target(TokenApi.class, config.getAuthorizationBaseUrl());
     }
 }
