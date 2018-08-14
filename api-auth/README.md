@@ -45,11 +45,15 @@ the access token.
 
 Check the `scopes` you want to use. Since the current API only provides two scopes it is included in the config. To be more flexible it might also be a valid option to pass this along with the user credentials.
 
-### Trigger Authorization Flow ###
+### Trigger Initial Authorization Flow ###
 Use the `AuthorizationFlowHandler` to setup the respective feign clients and call it with the user's credentials to retrieve a `TokenProvider` for further API access.
 
 ```java
+// use in-memory token repository
 AuthorizationFlowHandler handler = AuthorizationFlowHandler.setup(config);
+
+// use a custom token repository to realize persistent session management
+AuthorizationFlowHandler handler = AuthorizationFlowHandler.setup(config, new TokenRepository({...}));
 TokenProvider tokenProvider = handler.authorize("username", "password");
 
 // do fancy stuff
@@ -59,10 +63,21 @@ tokenProvider.getAccessToken();
 
 That's basically as easy as it (currently) gets.
 
+### Remember Me Use Case ###
+In case an initial authorization flow was already performed and a custom repository implementing the `TokenRepository` interface was used the `AuthorizationFlowHandler` provides a method to instantly retrieve a `TokenProvider`. There is a check whether the data in the repository is valid. In case it is not an exception will be thrown and the authentication should be done again using the initial flow.
+
+```java
+// non-empty repository containing previously retrieved token information
+TokenRepository repository = new TokenRepository({...});
+TokenProvider tokenProvider = AuthorizationFlowHandler.fromRepository(config.getOAuthConfig(), repository);
+
+// and again - do fancy stuff
+tokenProvider.getAccessToken();
+```
+
 ## Future Work / ToDos
 * Enhance other API modules to rely on the `TokenProvider` interface to simplify the overall usage
 * Improve error handling and introduce fallback mechanisms for failing requests
-* Store the latest tokens in a better way than the current dull in-memory implementation
 * Simplify the domain model objects (e.g. session information and consent information)
 * Work on the visibility of certain classes to only expose necessary public interfaces / functions
 

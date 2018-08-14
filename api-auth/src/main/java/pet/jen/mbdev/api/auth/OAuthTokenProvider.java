@@ -16,12 +16,14 @@ import pet.jen.mbdev.api.auth.persistence.TokenRepository;
 import java.util.Date;
 
 /**
- * Is setup using an authorization code which is used for the initial retrieval of the tokens from the token API.
+ * Responsible for the {@link TokenInformation} which is relevant to perform authenticated requests.
+ * Might be initialized following two scenarios:
+ * 1. An authorization code is available and will be used to retrieve token information (access and refresh code)
+ * 2. A populated {@link TokenRepository} already containing all the necessary information.
+ *
  * The `getAccessToken` function ensures that there is always a valid access token returned in the method. In case
  * the returned access token is invalid a forced refresh can be triggered by using `refreshTokens`.
- *
- * TODO: Maybe the storage of the tokens could be decrypted in some kind of in-memory cache / db.
- *
+
  * @author Jens Petersohn <me@jen.pet>
  */
 class OAuthTokenProvider implements TokenProvider {
@@ -35,15 +37,16 @@ class OAuthTokenProvider implements TokenProvider {
     private TokenRepository tokenRepository;
 
     /**
-     * TODO: Re-write.
+     * The builder is the only public method to create a token provider. When calling `build()` this private constructor
+     * will be called.
      *
-     * New authentication
-     * Creates the token provider based on the configuration of the OAuth flow and the authorization code.
+     * The two scenarios mentioned above are handled by checking for the auth code. If that one is not provided but a token
+     * repository it will use the token repositories and skip an initial token retrieval. If none of the two is available
+     * an {@link IllegalStateException} will be thrown.
      *
-     * Provider initialization should make the initial token retrieval call since the first invocation of getAccessToken() might
-     * beyond the authCode's time of validity which causes the call to fail.
-     *
-     * @param config OAuth details required for token handling
+     * @param tokenApi might be null; when not set the default token api will be created
+     * @param config mandatory; OAuth details required for token handling
+     * @param tokenRepository which should be used for the token information
      * @param authCode code to retrieve tokens initially
      */
     @Builder

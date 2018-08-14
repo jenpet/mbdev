@@ -41,21 +41,14 @@ public class AuthorizationFlowHandler {
     private TokenRepository tokenRepository;
 
     /**
-     * Convenience method which automatically uses the in-memory token repository.
-     */
-    public static AuthorizationFlowHandler setup(OAuthConfig config) {
-        return setup(config, null);
-    }
-
-    /**
-     * Sets up a new authorization flow handler which performs the necessary steps for a proper authentication.
+     * Sets up a new authorization flow handler which performs the necessary steps for a proper initial authentication.
      *
      * Passing a custom {@link TokenRepository} implementation allows to control the storage of the authentication tokens.
      * If a session should be persistent a token repository implementation might be serialized and used as an input later on
      * to create a working {@link TokenProvider}.
      *
      * @param config which holds all the information for the OAuth flow
-     * @param tokenRepository which should be used to store and load authentication tokens.
+     * @param tokenRepository which should be used to store and load authentication tokens
      * @return handler which performs necessary steps for authorization.
      */
     public static AuthorizationFlowHandler setup(OAuthConfig config, TokenRepository tokenRepository) {
@@ -69,14 +62,25 @@ public class AuthorizationFlowHandler {
                 tokenRepository);
     }
 
+    /**
+     * Convenience method which automatically uses the default repository of the {@link OAuthTokenProvider}.
+     */
+    public static AuthorizationFlowHandler setup(OAuthConfig config) {
+        return setup(config, null);
+    }
+
+    /**
+     * Initializes a {@link TokenProvider} based on a config and a given repository. This method should be used
+     * when an initial login is already performed using an auth code and a populated repository is available.
+     *
+     * @param config which holds all the information for the OAuth flow
+     * @param tokenRepository which should be used to store and load authentication tokens
+     * @return token provider based on the token repository provided
+     */
     public static TokenProvider fromRepository(OAuthConfig config, TokenRepository tokenRepository) {
         return OAuthTokenProvider.builder()
                 .config(config)
                 .tokenRepository(tokenRepository).build();
-    }
-
-    AuthorizationFlowHandler(AuthorizationApi authorizationApi, LoginApi loginApi, OAuthConfig config) {
-        this(authorizationApi, loginApi, config, new InMemoryTokenRepository());
     }
 
     AuthorizationFlowHandler(AuthorizationApi authorizationApi, LoginApi loginApi, OAuthConfig config, TokenRepository tokenRepository) {
@@ -87,7 +91,7 @@ public class AuthorizationFlowHandler {
     }
 
     /**
-     * Initializes the OAuth flow and handles every step's result and error gracefully. Eventually it returns a
+     * Initializes the complete OAuth flow and handles every step's result and error gracefully. Eventually it returns a
      * implementation of the {@link TokenProvider} interface which is required to target the corresponding APIs.
      *
      * If any of the performed steps throws a {@link SessionRetrievalException}, {@link UserLoginFailedException} or

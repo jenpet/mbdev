@@ -41,7 +41,7 @@ public class AuthorizationFlowHandlerTest extends BaseAuthorizationTest {
     @Before
     public void setup() {
         defaultConfig = createDefaultConfig();
-        authorizationFlowHandler = new AuthorizationFlowHandler(authorizationApi, loginApi, defaultConfig);
+        authorizationFlowHandler = new AuthorizationFlowHandler(authorizationApi, loginApi, defaultConfig, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
