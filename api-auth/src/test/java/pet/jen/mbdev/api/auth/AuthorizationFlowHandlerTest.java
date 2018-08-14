@@ -7,13 +7,18 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import pet.jen.mbdev.api.TokenProvider;
 import pet.jen.mbdev.api.auth.client.AuthorizationApi;
 import pet.jen.mbdev.api.auth.client.LoginApi;
 import pet.jen.mbdev.api.auth.client.TokenApi;
 import pet.jen.mbdev.api.auth.domain.ConsentInformation;
 import pet.jen.mbdev.api.auth.domain.OAuthConfig;
 import pet.jen.mbdev.api.auth.domain.SessionInformation;
+import pet.jen.mbdev.api.auth.domain.TokenInformation;
 import pet.jen.mbdev.api.auth.exception.*;
+import pet.jen.mbdev.api.auth.persistence.TokenRepository;
+
+import java.util.Date;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -147,6 +152,20 @@ public class AuthorizationFlowHandlerTest extends BaseAuthorizationTest {
     @Test(expected = AuthorizationInitializationException.class)
     public void testInit_whenSingleStepFails_shouldThrowAuthorizationInitializationException() {
         authorizationFlowHandler.authorize("username", "password");
+    }
+
+    @Test
+    public void testFromRepository_whenTokenRepositoryIsNotEmpty_shouldCreateTokenProviderWithGivenRepositoryData() {
+        TokenRepository repository = Mockito.mock(TokenRepository.class);
+        TokenInformation tokenInformation = Mockito.mock(TokenInformation.class);
+        Mockito.when(repository.isEmpty()).thenReturn(false);
+        Mockito.when(repository.get()).thenReturn(tokenInformation);
+        Mockito.when(tokenInformation.isValid()).thenReturn(true);
+        Mockito.when(tokenInformation.getAccessToken()).thenReturn("access-token");
+        // so that it does not need to be refreshed set a time which is sensitive for the buffer
+        Mockito.when(tokenInformation.getTimestamp()).thenReturn(new Date().getTime() + 10000);
+        TokenProvider tokenProvider = AuthorizationFlowHandler.fromRepository(defaultConfig, repository);
+        assertThat(tokenProvider.getAccessToken()).isEqualToIgnoringCase("access-token");
     }
 
     private SessionInformation createSessionInfo() {

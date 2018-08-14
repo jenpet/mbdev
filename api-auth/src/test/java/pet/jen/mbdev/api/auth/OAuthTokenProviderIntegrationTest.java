@@ -12,7 +12,9 @@ public class OAuthTokenProviderIntegrationTest extends BaseAuthorizationIntegrat
 
     @Before
     public void setup() {
-        tokenProvider = new OAuthTokenProvider(createConfig(), "28231715-ef6c-4742-9914-498d4aa391bf");
+        tokenProvider = OAuthTokenProvider.builder()
+                .config(createConfig())
+                .authCode("28231715-ef6c-4742-9914-498d4aa391bf").build();
     }
 
     @Test

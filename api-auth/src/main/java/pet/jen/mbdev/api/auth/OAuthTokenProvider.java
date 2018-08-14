@@ -1,13 +1,17 @@
 package pet.jen.mbdev.api.auth;
 
+import com.google.common.base.Strings;
 import feign.Feign;
 import feign.auth.BasicAuthRequestInterceptor;
 import feign.form.FormEncoder;
 import feign.jackson.JacksonDecoder;
+import lombok.Builder;
 import pet.jen.mbdev.api.TokenProvider;
 import pet.jen.mbdev.api.auth.client.TokenApi;
 import pet.jen.mbdev.api.auth.domain.OAuthConfig;
 import pet.jen.mbdev.api.auth.domain.TokenInformation;
+import pet.jen.mbdev.api.auth.exception.TokenPersistenceException;
+import pet.jen.mbdev.api.auth.persistence.TokenRepository;
 
 import java.util.Date;
 
@@ -27,16 +31,13 @@ class OAuthTokenProvider implements TokenProvider {
     // the overall OAuth configuration
     private OAuthConfig config;
 
-    // auth code for the initial retrieval of the access and refresh token
-    private String authCode;
-
-    // the last retrieved token information fromt the token api
-    private TokenInformation latestTokenInfo;
-
-    // timestamp when the last update was performed
-    private Long lastUpdate;
+    // repository which should be used to save and store token information
+    private TokenRepository tokenRepository;
 
     /**
+     * TODO: Re-write.
+     *
+     * New authentication
      * Creates the token provider based on the configuration of the OAuth flow and the authorization code.
      *
      * Provider initialization should make the initial token retrieval call since the first invocation of getAccessToken() might
@@ -45,64 +46,69 @@ class OAuthTokenProvider implements TokenProvider {
      * @param config OAuth details required for token handling
      * @param authCode code to retrieve tokens initially
      */
-    OAuthTokenProvider(TokenApi tokenApi, OAuthConfig config, String authCode) {
-        this.tokenApi = tokenApi;
+    @Builder
+    private OAuthTokenProvider(TokenApi tokenApi, OAuthConfig config, TokenRepository tokenRepository, String authCode) {
+        if(config == null || !config.isValid()) {
+            throw new IllegalArgumentException("Required parameter config is null or invalid.");
+        }
         this.config = config;
-        this.authCode = authCode;
-        // immediately initialize tokens to use fresh auth code
-        initTokens();
-    }
 
-    /**
-     * Convenience method of {@link OAuthTokenProvider} constructor to have the default api token client.
-     *
-     * @param config OAuth details required for token handling
-     * @param authCode code to retrieve tokens initially
-     */
-    OAuthTokenProvider(OAuthConfig config, String authCode) {
-        this(createTokenApiClient(config), config, authCode);
-    }
+        // if no token api client set default to the internal one
+        this.tokenApi = tokenApi != null ? tokenApi : createTokenApiClient(config);
 
+        // if no repository is set default to in-memory
+        this.tokenRepository = tokenRepository != null ? tokenRepository : new InMemoryTokenRepository();
+
+        if(!Strings.isNullOrEmpty(authCode)) {
+            // immediately initialize tokens to use fresh auth code
+            initTokens(authCode);
+            return;
+        }
+
+        // If no auth code is provided and no initialization of the tokens happened check whether
+        // the repository has valid data. In case it does not throw an exception.
+        if(tokenRepository == null || tokenRepository.isEmpty() || !tokenRepository.get().isValid()) {
+            throw new IllegalStateException("No auth code available or provided repository was either empty or had invalid data.");
+        }
+    }
 
     @Override
     public String getAccessToken() {
-        // if tokens are not initialized throw exception
-        if(this.getLastUpdate() == null || this.getTokenInfo() == null) {
-            throw new IllegalStateException("Impossible to return access token since token provider was not properly initialized.");
-        } else if(lastUpdate + latestTokenInfo.getExpiresIn() - config.getTokenExpiryBuffer() <= new Date().getTime()) {
+        // check for the token buffer first and if necessary refresh
+        if(getTokenInfo().getTimestamp() + getTokenInfo().getExpiresIn() - config.getTokenExpiryBuffer() <= new Date().getTime()) {
             refreshTokens();
         }
-        return this.latestTokenInfo.getAccessToken();
+        return this.getTokenInfo().getAccessToken();
     }
 
     @Override
     public String refreshTokens() {
-        this.latestTokenInfo = tokenApi.refresh("refresh_token", this.latestTokenInfo.getRefreshToken());
-        updateTimestamp();
-        return this.latestTokenInfo.getAccessToken();
+        String refreshToken = this.getTokenInfo().getRefreshToken();
+        TokenInformation tokenInformation = tokenApi.refresh("refresh_token", refreshToken);
+        tokenInformation.setTimestamp(new Date().getTime());
+        saveTokenInformation(tokenInformation);
+        return tokenInformation.getAccessToken();
     }
 
     TokenInformation getTokenInfo() {
-        return this.latestTokenInfo;
-    }
-
-    Long getLastUpdate() {
-        return this.lastUpdate;
+        return this.tokenRepository.get();
     }
 
     /**
      * Initializes the tokens using the given authorization code as the required grant type.
      */
-    private void initTokens() {
-        latestTokenInfo = tokenApi.retrieve("authorization_code", authCode, config.getRedirectUri());
-        updateTimestamp();
+    private void initTokens(String authCode) {
+        TokenInformation tokenInformation = tokenApi.retrieve("authorization_code", authCode, config.getRedirectUri());
+        tokenInformation.setTimestamp(new Date().getTime());
+        saveTokenInformation(tokenInformation);
     }
 
-    /**
-     * Updates the internal timestamp of the last update to enable the expiry handling.
-     */
-    private void updateTimestamp() {
-        this.lastUpdate = new Date().getTime();
+    private void saveTokenInformation(TokenInformation tokenInformation) {
+        try {
+            tokenRepository.save(tokenInformation);
+        } catch (TokenPersistenceException e) {
+            throw new IllegalArgumentException("Could not persist token information.", e);
+        }
     }
 
     private static TokenApi createTokenApiClient(OAuthConfig config) {

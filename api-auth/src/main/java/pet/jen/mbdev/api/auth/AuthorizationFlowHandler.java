@@ -12,6 +12,7 @@ import pet.jen.mbdev.api.auth.domain.ConsentInformation;
 import pet.jen.mbdev.api.auth.domain.OAuthConfig;
 import pet.jen.mbdev.api.auth.domain.SessionInformation;
 import pet.jen.mbdev.api.auth.exception.*;
+import pet.jen.mbdev.api.auth.persistence.TokenRepository;
 
 import java.net.HttpRetryException;
 
@@ -36,20 +37,53 @@ public class AuthorizationFlowHandler {
     // contains necessary meta data for the oauth flow
     private OAuthConfig config;
 
+    // token repository used to initialize the token provider
+    private TokenRepository tokenRepository;
+
+    /**
+     * Convenience method which automatically uses the in-memory token repository.
+     */
     public static AuthorizationFlowHandler setup(OAuthConfig config) {
+        return setup(config, null);
+    }
+
+    /**
+     * Sets up a new authorization flow handler which performs the necessary steps for a proper authentication.
+     *
+     * Passing a custom {@link TokenRepository} implementation allows to control the storage of the authentication tokens.
+     * If a session should be persistent a token repository implementation might be serialized and used as an input later on
+     * to create a working {@link TokenProvider}.
+     *
+     * @param config which holds all the information for the OAuth flow
+     * @param tokenRepository which should be used to store and load authentication tokens.
+     * @return handler which performs necessary steps for authorization.
+     */
+    public static AuthorizationFlowHandler setup(OAuthConfig config, TokenRepository tokenRepository) {
         if(!config.isValid()) {
             throw new IllegalArgumentException("The provided OAuth configuration was not valid. Please mandatory attributes.");
         }
         return new AuthorizationFlowHandler(
                 createAuthorizationApiClient(config),
                 createLoginApiClient(config),
-                config);
+                config,
+                tokenRepository);
+    }
+
+    public static TokenProvider fromRepository(OAuthConfig config, TokenRepository tokenRepository) {
+        return OAuthTokenProvider.builder()
+                .config(config)
+                .tokenRepository(tokenRepository).build();
     }
 
     AuthorizationFlowHandler(AuthorizationApi authorizationApi, LoginApi loginApi, OAuthConfig config) {
+        this(authorizationApi, loginApi, config, new InMemoryTokenRepository());
+    }
+
+    AuthorizationFlowHandler(AuthorizationApi authorizationApi, LoginApi loginApi, OAuthConfig config, TokenRepository tokenRepository) {
         this.authorizationApi = authorizationApi;
         this.loginApi = loginApi;
         this.config = config;
+        this.tokenRepository = tokenRepository;
     }
 
     /**
@@ -75,7 +109,10 @@ public class AuthorizationFlowHandler {
                     username,
                     password);
             String authCode = this.submitUserConsent(consentInfo);
-            return new OAuthTokenProvider(this.config, authCode);
+            return OAuthTokenProvider.builder()
+                    .config(this.config)
+                    .tokenRepository(this.tokenRepository)
+                    .authCode(authCode).build();
         } catch(SessionRetrievalException | UserLoginFailedException | UserConsentException e) {
             throw new AuthorizationInitializationException("Initialization flow failed can't instantiate a valid token provider", e);
         }
