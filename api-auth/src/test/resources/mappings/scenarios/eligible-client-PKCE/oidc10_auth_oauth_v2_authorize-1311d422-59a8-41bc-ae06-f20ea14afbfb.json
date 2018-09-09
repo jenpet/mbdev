@@ -1,0 +1,42 @@
+{
+  "id" : "1311d422-59a8-41bc-ae06-f20ea14afbfb",
+  "name" : "oidc10_auth_oauth_v2_authorize",
+  "request" : {
+    "urlPath" : "/oidc10/auth/oauth/v2/authorize",
+    "queryParameters": {
+      "code_challenge": {
+        "matches": "^.+$"
+      },
+      "response_type": {
+        "equalTo": "code"
+      },
+      "client_id": {
+        "equalTo": "eligible-pkce-client"
+      },
+      "redirect_uri":{
+        "equalTo": "http://localhost"
+      },
+      "scope": {
+        "equalTo": "mb:vehicle:status:general"
+      },
+      "code_challenge_method": {
+        "equalTo": "S256"
+      }
+    },
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 302,
+    "body" : "",
+    "headers" : {
+      "Strict-Transport-Security" : "max-age=31536000; includeSubDomains",
+      "Location" : "/wl/login?action=display&sessionID=session-id-3&sessionData=session-data-3&app-id=ONEAPI.PROD",
+      "Content-Type" : "text/plain;charset=UTF-8",
+      "Date" : "Thu, 20 Sep 2018 18:14:34 GMT",
+      "Set-Cookie" : "TS015cbe2e=set-cookie-2; Path=/"
+    }
+  },
+  "uuid" : "1311d422-59a8-41bc-ae06-f20ea14afbfb",
+  "persistent" : true,
+  "insertionIndex" : 37
+}

@@ -17,18 +17,49 @@ public class ConfigParser {
      * embeds an OAuthConfig POJO.
      */
     public static SampleConfig getConfig()  throws Exception {
-        String jsonConfig = Resources.toString(Resources.getResource("mbdev-config.json"), Charsets.UTF_8);
+        String jsonConfig = Resources.toString(Resources.getResource(getConfigFileName()), Charsets.UTF_8);
         SampleConfig config = mapper.readValue(jsonConfig, SampleConfig.class);
         config.setOAuthConfig(getOAuthConfig(jsonConfig));
         return config;
     }
 
+    private static String getConfigFileName() {
+        String suffix = System.getProperty("configSuffix", "");
+        StringBuilder builder = new StringBuilder();
+        builder.append("mbdev-config");
+        if(suffix != "") {
+            builder.append("-");
+            builder.append(suffix);
+        }
+        return builder.append(".json").toString();
+    }
+
     private static OAuthConfig getOAuthConfig(String jsonConfig) throws IOException {
         JsonNode tree = mapper.readTree(jsonConfig);
-        OAuthConfig config = OAuthConfig.builder()
-                .clientId(tree.get("clientId").asText())
-                .clientSecret(tree.get("clientSecret").asText())
-                .scopes(Arrays.asList(tree.get("scopes").asText().split(" "))).build();
+        OAuthConfig.OAuthConfigBuilder builder = OAuthConfig.builder();
+        if(tree.has("clientId")) {
+            builder.clientId(tree.get("clientId").asText());
+        }
+        if(tree.has("clientSecret")) {
+            builder.clientSecret(tree.get("clientSecret").asText());
+        }
+        if(tree.has("authorizationBaseUrl")) {
+            builder.authorizationBaseUrl(tree.get("authorizationBaseUrl").asText());
+        }
+        if(tree.has("loginBaseUrl")) {
+            builder.loginBaseUrl(tree.get("loginBaseUrl").asText());
+        }
+        if(tree.has("usePKCE")) {
+            builder.usePKCE(tree.get("usePKCE").asBoolean());
+        }
+        if(tree.has("trustAllSslHosts")) {
+            builder.trustAllSslHosts(tree.get("trustAllSslHosts").asBoolean());
+        }
+        if(tree.has("scopes")) {
+            builder.scopes(Arrays.asList(tree.get("scopes").asText().split(" ")));
+        }
+        OAuthConfig config = builder.build();
+
         if(!config.isValid()) {
             throw new IllegalArgumentException("Provided config file mbdev-config.json could not get parsed into valid OAuth config file.");
         }

@@ -6,7 +6,12 @@ package pet.jen.mbdev.api.auth.exception;
  *
  * @author Jens Petersohn <me@jen.pet>
  */
-public class UserLoginFailedException extends RuntimeException {
+public class UserLoginFailedException extends Exception {
+
+    public UserLoginFailedException(String message) {
+        super(message);
+    }
+
     public UserLoginFailedException(String message, Throwable cause) {
         super(message, cause);
     }

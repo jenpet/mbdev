@@ -25,6 +25,7 @@
         <assertj-version>3.9.1</assertj-version>
         <junit-version>4.12</junit-version>
         <wiremock-version>2.16.0</wiremock-version>
+        <okhttp-version>3.11.0</okhttp-version>
     </properties>
 
     <modules>
@@ -56,6 +57,16 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${okhttp-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>logging-interceptor</artifactId>
+                <version>${okhttp-version}</version>
             </dependency>
 
             <dependency>

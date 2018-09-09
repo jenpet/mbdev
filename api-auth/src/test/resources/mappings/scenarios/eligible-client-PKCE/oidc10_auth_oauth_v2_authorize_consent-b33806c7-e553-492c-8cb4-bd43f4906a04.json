@@ -1,0 +1,26 @@
+{
+  "id" : "b33806c7-e553-492c-8cb4-bd43f4906a04",
+  "name" : "oidc10_auth_oauth_v2_authorize_consent",
+  "request" : {
+    "url" : "/oidc10/auth/oauth/v2/authorize/consent",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalTo" : "action=Grant&sessionID=session-id-3&sessionData=session-data-3",
+      "caseInsensitive" : false
+    } ]
+  },
+  "response" : {
+    "status" : 302,
+    "body" : "",
+    "headers" : {
+      "Strict-Transport-Security" : "max-age=31536000; includeSubDomains",
+      "Set-Cookie" : [ "logouttargets=eligible-pkce-client; Path=/; Secure; HttpOnly", "TS015cbe2e=set-cookie-3; Path=/" ],
+      "Location" : "http://localhost?code=3e898cf8-a8a9-43cb-b56e-dcb03cdef73a",
+      "Content-Type" : "text/html;charset=UTF-8",
+      "Date" : "Thu, 20 Sep 2018 18:15:01 GMT"
+    }
+  },
+  "uuid" : "b33806c7-e553-492c-8cb4-bd43f4906a04",
+  "persistent" : true,
+  "insertionIndex" : 38
+}

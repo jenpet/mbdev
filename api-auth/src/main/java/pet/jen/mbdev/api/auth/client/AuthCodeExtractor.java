@@ -1,4 +1,4 @@
-package pet.jen.mbdev.api.auth;
+package pet.jen.mbdev.api.auth.client;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

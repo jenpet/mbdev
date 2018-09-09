@@ -15,4 +15,4 @@ buildNumber.properties
 .idea/
 
 # Sample data
-mbdev-config.json
+mbdev-samples/src/main/resources/mbdev-config*.json

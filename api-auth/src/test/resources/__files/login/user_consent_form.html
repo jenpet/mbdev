@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+<head>
+    <!-- simplified, not relevant-->
+</head>
+
+<body class="embedded">
+
+<div id="ciam-container" class="ciam-background-image"> <!--End of ciam-container is in footer.jspf-->
+
+    <!-- H.E.A.D.E.R. -->
+    <div id="page-header">
+    <span id="ciam-weblogin-header-title" class="ciam-logo page-title">
+        
+        
+            Setting up data consent for third parties
+        
+    </span>
+        <span id="ciam-legal-text-header-title" class="ciam-logo page-title"/>
+    </div>
+
+
+    <div id="ciam-description" class="page-explanation ciam-explanation">
+        You are logged in as <b>Jens Petersohn</b>
+    </div>
+
+    <div id="page-content">
+        <!-- simplified, not relevant-->
+
+        <div class="panel-group">
+            <form id="frmConsent" method="POST" role="form" action="/wl/consent" class="form-horizontal">
+
+                <input type="hidden" name="app-id" value="ONEAPI.PROD">
+                <input type="hidden" name="lang" value="en_US">
+
+                <input type="hidden" name="sessionID" value='849cc52b-9ca4-4ec1-b1c6-c26ae9e398ed'>
+
+
+                <input type="hidden" name="sessionData" value='eyJjdHkiO..._t7wrqQ'>
+
+
+
+                <div class="vertical-input-form" id="main-content-consent">
+                    <div class="consent-message">
+                        The third-party provider <b>test-app2</b> would like access to the following information in your user account:
+                    </div>
+
+
+                    <div class="form-group form-group-separator">
+                        <div class="row">
+                            <div class="col-sm-11 col-xs-10">
+                                <label>
+                                    <input type="checkbox" name="scope:mb:vehicle:status:general" id="checkbox-mb:vehicle:status:general">
+                                    <span class="checkboxLabel">Vehicle status data from Mercedes me connect</span>
+                                </label>
+                            </div>
+
+                            <div class="col-sm-1 col-xs-2">
+                                <a href="#" title="" data-placement="top" data-toggle="tooltip"
+                                   class="pull-right"
+                                   data-original-title="The requesting application will be allowed to access status data of your vehicle on your behalf, e.g.ignition state, fuel level or odometer value. This does not include the location of your vehicle. Data is only available if corresponding Mercedes me connect services are available and activated for your vehicle (e.g. Remote Status). Please check in the customer portal which services are activated.">
+                                    <span class="glyphicon glyphicon-info-sign ciam-tooltip"></span>
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                    <div class="form-group form-group-separator">
+                        <div class="row">
+                            <div class="col-sm-11 col-xs-10">
+                                <label>
+                                    <input type="checkbox" name="scope:mb:user:pool:reader" id="checkbox-mb:user:pool:reader">
+                                    <span class="checkboxLabel">Diagnostic data of your vehicle</span>
+                                </label>
+                            </div>
+
+                            <div class="col-sm-1 col-xs-2">
+                                <a href="#" title="" data-placement="top" data-toggle="tooltip"
+                                   class="pull-right"
+                                   data-original-title="Most recent trouble information about your vehicle: Diagnostic Trouble Codes per Electronic Control Unit and further information surrounding the trouble event (e.g. mileage) will be provided over the air.">
+                                    <span class="glyphicon glyphicon-info-sign ciam-tooltip"></span>
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group" id="disclaimer">
+                        <div class="col-md-12">
+                            The third-party provider will first receive an authenticator giving them access to the aforementioned data. You may revoke your consent at any time using the <a href="/profile/edit?app-id=ONEAPI.PROD">user account settings</a>. Please check whether you are required to agree to additional terms and conditions of use in connection with the aforementioned applications/web pages.
+                        </div>
+                    </div>
+
+                    <div class="form-group button-container">
+                        <div class="col-md-12">
+                            <button id="consent-btn" class="btn btn-primary btn-sm" type="submit">
+                                Approve
+                            </button>
+                            <a class="btn btn-default btn-sm" id="consent-cancel-button"
+                               href="https://developer.mercedes-benz.com//ciam/callback?status=2000">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </form>
+        </div>
+    </div>
+</div>
+        <!-- simplified, not relevant-->
+</body>
+</html>

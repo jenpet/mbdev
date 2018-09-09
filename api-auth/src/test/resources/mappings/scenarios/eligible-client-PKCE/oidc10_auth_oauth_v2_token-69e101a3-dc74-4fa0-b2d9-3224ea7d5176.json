@@ -1,0 +1,26 @@
+{
+  "id" : "69e101a3-dc74-4fa0-b2d9-3224ea7d5176",
+  "name" : "oidc10_auth_oauth_v2_token",
+  "request" : {
+    "url" : "/oidc10/auth/oauth/v2/token",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "matches" : "grant_type=authorization_code&code=3e898cf8-a8a9-43cb-b56e-dcb03cdef73a&client_id=eligible-pkce-client&code_verifier=.+&redirect_uri=http%3A%2F%2Flocalhost",
+      "caseInsensitive" : false
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\r\n  \"access_token\":\"access-token-3\",\r\n  \"token_type\":\"Bearer\",\r\n  \"expires_in\":3600,\r\n  \"refresh_token\":\"refresh-token-3\",\r\n  \"scope\":\"mb:vehicle:status:general\"\r\n}",
+    "headers" : {
+      "Pragma" : "no-cache",
+      "Cache-Control" : "no-store",
+      "Content-Type" : "application/json;charset=UTF-8",
+      "Date" : "Thu, 20 Sep 2018 18:15:01 GMT",
+      "Set-Cookie" : "TS015cbe2e=set-cookie-4; Path=/"
+    }
+  },
+  "uuid" : "69e101a3-dc74-4fa0-b2d9-3224ea7d5176",
+  "persistent" : true,
+  "insertionIndex" : 39
+}

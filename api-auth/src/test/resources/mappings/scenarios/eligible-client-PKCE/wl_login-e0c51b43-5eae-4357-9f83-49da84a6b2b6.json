@@ -1,0 +1,35 @@
+{
+  "id" : "e0c51b43-5eae-4357-9f83-49da84a6b2b6",
+  "name" : "wl_login",
+  "request" : {
+    "url" : "/wl/login",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalTo" : "app-id=ONEAPI.PROD&sessionID=session-id-3&sessionData=session-data-3&username=username&password=password",
+      "caseInsensitive" : false
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "\n\n\n<html>\n<head>\n    <title>Consent</title>\n\n    \n</head>\n<body onLoad=\"document.forms[0].submit()\">\n<form action=\"https://api-test.secure.mercedes-benz.com/oidc10/auth/oauth/v2/authorize/consent\" method=\"POST\" enctype=\"application/x-www-form-urlencoded\">\n    <input type=\"hidden\" name=\"action\" value=\"Grant\">\n    <input type=\"hidden\" name=\"sessionID\" value=\"session-id-3\"/>\n    <input type=\"hidden\" name=\"sessionData\" value=\"session-data-3\">\n</form>\n</body>\n</html>",
+    "headers" : {
+      "Date" : "Thu, 20 Sep 2018 18:15:01 GMT",
+      "X-Request-ID" : "8-1a8218c7-5bf7-41e1-9162-aac44c06e358",
+      "X-Frame-Options" : "DENY",
+      "Set-Cookie" : [ "SSOTOKEN=set-cookie-1; Path=/; Secure; HttpOnly" ],
+      "Expires" : "Thu, 01 Dec 1994 16:00:00 GMT",
+      "Cache-Control" : "no-cache=\"set-cookie, set-cookie2\"",
+      "Strict-Transport-Security" : "max-age=31536000",
+      "X-Content-Type-Options" : "nosniff",
+      "X-XSS-Protection" : "1; mode=block",
+      "Vary" : "Accept-Encoding",
+      "Keep-Alive" : "timeout=20",
+      "Connection" : "Keep-Alive",
+      "Content-Type" : "text/html;charset=ISO-8859-1",
+      "Content-Language" : "en-US"
+    }
+  },
+  "uuid" : "e0c51b43-5eae-4357-9f83-49da84a6b2b6",
+  "persistent" : true,
+  "insertionIndex" : 28
+}

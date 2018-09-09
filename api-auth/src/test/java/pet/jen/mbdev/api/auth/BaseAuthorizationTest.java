@@ -8,16 +8,20 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class BaseAuthorizationTest {
-    protected OAuthConfig createDefaultConfig() {
+
+    protected OAuthConfig.OAuthConfigBuilder getDefaultBuilder() {
         return OAuthConfig.builder()
-                .authorizationBaseUrl("authbase")
-                .loginBaseUrl("loginbase")
+                .authorizationBaseUrl("http://localhost")
+                .loginBaseUrl("http://localhost")
                 .clientId("client-id")
                 .clientSecret("client-secret")
                 .redirectUri("http://localhost")
                 .scopes(Arrays.asList("scope1", "scope2"))
-                .tokenExpiryBuffer(1)
-                .build();
+                .tokenExpiryBuffer(1);
+    }
+
+    protected OAuthConfig createDefaultConfig() {
+        return getDefaultBuilder().build();
     }
 
     protected String resourceAsString(String filename) throws IOException {

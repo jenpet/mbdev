@@ -6,7 +6,7 @@ package pet.jen.mbdev.api.auth.exception;
  *
  * @author Jens Petersohn <me@jen.pet>
  */
-public class SessionRetrievalException extends RuntimeException {
+public class SessionRetrievalException extends Exception {
     public SessionRetrievalException(String message, Throwable cause) {
         super(message, cause);
     }

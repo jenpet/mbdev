@@ -6,5 +6,5 @@ package pet.jen.mbdev.api.auth.client;
  * @author Jens Petersohn <me@jen.pet>
  */
 public interface IAMApi {
-    String BASE_PATH = "/oidc10/auth/oauth/v2";
+    String BASE_PATH = "oidc10/auth/oauth/v2";
 }

@@ -48,9 +48,10 @@ class OAuthTokenProvider implements TokenProvider {
      * @param config mandatory; OAuth details required for token handling
      * @param tokenRepository which should be used for the token information
      * @param authCode code to retrieve tokens initially
+     * @param codeVerifier in case the authentication process used the PKCE flow it will be used to retrieve the initially
      */
     @Builder
-    private OAuthTokenProvider(TokenApi tokenApi, OAuthConfig config, TokenRepository tokenRepository, String authCode) {
+    private OAuthTokenProvider(TokenApi tokenApi, OAuthConfig config, TokenRepository tokenRepository, String authCode, String codeVerifier) {
         if(config == null || !config.isValid()) {
             throw new IllegalArgumentException("Required parameter config is null or invalid.");
         }
@@ -62,9 +63,9 @@ class OAuthTokenProvider implements TokenProvider {
         // if no repository is set default to in-memory
         this.tokenRepository = tokenRepository != null ? tokenRepository : new InMemoryTokenRepository();
 
+        // if an auth code is present assume that the tokens were not received yet
         if(!Strings.isNullOrEmpty(authCode)) {
-            // immediately initialize tokens to use fresh auth code
-            initTokens(authCode);
+            initTokens(authCode, codeVerifier);
             return;
         }
 
@@ -73,6 +74,38 @@ class OAuthTokenProvider implements TokenProvider {
         if(tokenRepository == null || tokenRepository.isEmpty() || !tokenRepository.get().isValid()) {
             throw new IllegalStateException("No auth code available or provided repository was either empty or had invalid data.");
         }
+    }
+
+    /**
+     * Initializes the tokens for the token provider. For this step an auth code is mandatory, the code verifier
+     * depends on the initialization of the process. If the issuing authority received a code challenge earlier
+     * a non null code verifier indicates that the request should have an appended client id and code verifier.
+     *
+     * @param authCode mandatory in every scenario to retrieve tokens
+     * @param codeVerifier depending on the previous process required when PKCE is enabled
+     */
+    private void initTokens(String authCode, String codeVerifier) {
+        TokenInformation tokenInformation;
+        if(config.isUsePKCE()) {
+            if(codeVerifier == null) {
+                throw new IllegalStateException("Usage of PKCE mechanism is enabled for the authorization flow but code verifier for token retrieval is not provided.");
+            }
+            tokenInformation = tokenApi.retrieve(
+                    "authorization_code",
+                    authCode,
+                    config.getClientId(),
+                    codeVerifier,
+                    config.getRedirectUri());
+        } else {
+            tokenInformation = tokenApi.retrieve(
+                    "authorization_code",
+                    authCode,
+                    null,
+                    null,
+                    config.getRedirectUri());
+        }
+        tokenInformation.setTimestamp(new Date().getTime());
+        saveTokenInformation(tokenInformation);
     }
 
     @Override
@@ -97,15 +130,6 @@ class OAuthTokenProvider implements TokenProvider {
         return this.tokenRepository.get();
     }
 
-    /**
-     * Initializes the tokens using the given authorization code as the required grant type.
-     */
-    private void initTokens(String authCode) {
-        TokenInformation tokenInformation = tokenApi.retrieve("authorization_code", authCode, config.getRedirectUri());
-        tokenInformation.setTimestamp(new Date().getTime());
-        saveTokenInformation(tokenInformation);
-    }
-
     private void saveTokenInformation(TokenInformation tokenInformation) {
         try {
             tokenRepository.save(tokenInformation);
@@ -115,10 +139,12 @@ class OAuthTokenProvider implements TokenProvider {
     }
 
     private static TokenApi createTokenApiClient(OAuthConfig config) {
-        return Feign.builder()
+        Feign.Builder builder = Feign.builder()
                 .encoder(new FormEncoder())
-                .decoder(new JacksonDecoder())
-                .requestInterceptor(new BasicAuthRequestInterceptor(config.getClientId(), config.getClientSecret()))
-                .target(TokenApi.class, config.getAuthorizationBaseUrl());
+                .decoder(new JacksonDecoder());
+        if(!config.isUsePKCE()) {
+            builder.requestInterceptor(new BasicAuthRequestInterceptor(config.getClientId(), config.getClientSecret()));
+        }
+        return builder.target(TokenApi.class, config.getAuthorizationBaseUrl());
     }
 }

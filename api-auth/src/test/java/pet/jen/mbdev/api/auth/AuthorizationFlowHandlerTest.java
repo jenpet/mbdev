@@ -1,6 +1,5 @@
 package pet.jen.mbdev.api.auth;
 
-import feign.FeignException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,40 +7,38 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import pet.jen.mbdev.api.TokenProvider;
-import pet.jen.mbdev.api.auth.client.AuthorizationApi;
-import pet.jen.mbdev.api.auth.client.LoginApi;
-import pet.jen.mbdev.api.auth.client.TokenApi;
-import pet.jen.mbdev.api.auth.domain.ConsentInformation;
-import pet.jen.mbdev.api.auth.domain.OAuthConfig;
-import pet.jen.mbdev.api.auth.domain.SessionInformation;
-import pet.jen.mbdev.api.auth.domain.TokenInformation;
-import pet.jen.mbdev.api.auth.exception.*;
+import pet.jen.mbdev.api.auth.client.BaseClient;
+import pet.jen.mbdev.api.auth.domain.*;
+import pet.jen.mbdev.api.auth.exception.AuthorizationInitializationException;
+import pet.jen.mbdev.api.auth.exception.SessionRetrievalException;
+import pet.jen.mbdev.api.auth.exception.UserConsentException;
 import pet.jen.mbdev.api.auth.persistence.TokenRepository;
+import pet.jen.mbdev.api.auth.service.AuthorizationApiHandler;
+import pet.jen.mbdev.api.auth.service.WebFormHandler;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizationFlowHandlerTest extends BaseAuthorizationTest {
 
     @Mock
-    private AuthorizationApi authorizationApi;
+    private WebFormHandler webFormHandler;
 
     @Mock
-    private LoginApi loginApi;
-
-    @Mock
-    private TokenApi tokenApi;
+    private AuthorizationApiHandler authorizationApiHandler;
 
     private AuthorizationFlowHandler authorizationFlowHandler;
+
     private OAuthConfig defaultConfig;
 
     @Before
     public void setup() {
         defaultConfig = createDefaultConfig();
-        authorizationFlowHandler = new AuthorizationFlowHandler(authorizationApi, loginApi, defaultConfig, null);
+        authorizationFlowHandler = new AuthorizationFlowHandler(defaultConfig, null, webFormHandler, authorizationApiHandler);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -50,108 +47,71 @@ public class AuthorizationFlowHandlerTest extends BaseAuthorizationTest {
         AuthorizationFlowHandler.setup(config);
     }
 
-    @Test
-    public void testRetrieveSession_whenClientCallSucceeded_shouldReturnSessionInformation() throws Exception {
-        Mockito.when(authorizationApi.authorize(
-                eq("client-id"),
-                eq("http://localhost"),
-                eq("scope1 scope2")
-                )).thenReturn(resourceAsString("__files/login/redirected_login_form.html"));
-        SessionInformation sessionInfo = authorizationFlowHandler.retrieveSession(
-                defaultConfig.getClientId(),
-                defaultConfig.getRedirectUri(),
-                defaultConfig.getScopes());
-        assertThat(sessionInfo.getAppId()).isEqualTo("ONEAPI.PROD");
-        assertThat(sessionInfo.getSessionID()).isEqualTo("070027d2-5bd3-4038-8903-e2007a2e14b1");
-        assertThat(sessionInfo.getSessionData()).isEqualTo("eyJ0eXAiOiJKV1QiLCJhbGci...KfQ.zoINDytohLmYv1bTKABqnIu8wLS4pETEakcdnnkLF40");
-    }
-
-    @Test(expected = SessionRetrievalException.class)
-    public void testRetrieveSession_whenSessionInformationIsInvalid_shouldThrowSessionRetrievalException() {
-        Mockito.when(authorizationApi.authorize(
-                eq("client-id"),
-                eq("http://localhost"),
-                eq("scope1 scope2")
-        )).thenReturn("<html/>");
-
-        authorizationFlowHandler.retrieveSession(
-                defaultConfig.getClientId(),
-                defaultConfig.getRedirectUri(),
-                defaultConfig.getScopes());
-    }
-
-    @Test(expected = SessionRetrievalException.class)
-    public void testRetrieveSession_whenClientCallFailed_shouldThrowSessionRetrievalException() {
-        Mockito.doThrow(Mockito.mock(FeignException.class))
-                .when(authorizationApi).authorize(
-                    eq("client-id"),
-                    eq("http://localhost"),
-                    eq("scope1 scope2"));
-
-        authorizationFlowHandler.retrieveSession(
-                defaultConfig.getClientId(),
-                defaultConfig.getRedirectUri(),
-                defaultConfig.getScopes());
-    }
-
-    @Test(expected = UserLoginFailedException.class)
-    public void testSubmitUserLogin_whenConsentInformationIsInvalid_shouldThrowException() {
-        Mockito.when(loginApi.login(
-                eq("app-id"),
-                eq("sessionId"),
-                eq("sessionData"),
-                eq("username"),
-                eq("password"))).thenReturn("<html/>");
-        authorizationFlowHandler.submitUserLogin(createSessionInfo(), "username", "password");
-    }
-
-    @Test(expected = UserLoginFailedException.class)
-    public void testSubmitUserLogin_whenClientCallFails_shouldThrowException() {
-        Mockito.when(loginApi.login(
-                eq("app-id"),
-                eq("sessionId"),
-                eq("sessionData"),
-                eq("username"),
-                eq("password"))).thenThrow(FeignException.class);
-        authorizationFlowHandler.submitUserLogin(createSessionInfo(), "username", "password");
-    }
-
-    @Test
-    public void testSubmitUserConsent_whenDecoderReturnedAuthCodeException_shouldReturnCorrectAuthCode() {
-        Mockito.doThrow(new AuthCodeException("authCode"))
-                .when(authorizationApi).postConsent(
-                        eq("Grant"),
-                        eq("sessionId"),
-                        eq("sessionData")
-                );
-        assertThat(authorizationFlowHandler.submitUserConsent(createConsentInfo(createSessionInfo()))).isEqualTo("authCode");
-    }
-
-    @Test(expected = UserConsentException.class)
-    public void testSubmitUserConsent_whenDecoderReturnedNullAuthCode_shouldThrowUserConsentException() {
-        Mockito.doThrow(new AuthCodeException(null))
-                .when(authorizationApi).postConsent(
-                eq("Grant"),
-                eq("sessionId"),
-                eq("sessionData")
-        );
-        authorizationFlowHandler.submitUserConsent(createConsentInfo(createSessionInfo()));
-    }
-
-    @Test(expected = UserConsentException.class)
-    public void testSubmitUserConsent_whenClientCallFails_shouldThrowUserConsentException() throws Exception {
-        Mockito.doThrow(Mockito.mock(FeignException.class))
-                .when(authorizationApi).postConsent(
-                eq("Grant"),
-                eq("sessionId"),
-                eq("sessionData")
-        );
-        authorizationFlowHandler.submitUserConsent(createConsentInfo(createSessionInfo()));
-    }
-
     @Test(expected = AuthorizationInitializationException.class)
-    public void testInit_whenSingleStepFails_shouldThrowAuthorizationInitializationException() {
+    public void testAuthorize_whenAnyRequiredStepFails_shouldThrowException() throws Exception {
+        Mockito.when(authorizationApiHandler.initializeAuth(anyString(), anyString(), anyString())).thenThrow(new SessionRetrievalException("bla", null));
         authorizationFlowHandler.authorize("username", "password");
+    }
+
+    @Test
+    public void testSubmitUserConsent_whenConsentInformationHasMissingScopesAndDefaultApproveIsEnabled_shouldMakeApprovalCallFirst() throws Exception {
+        ScopeApprovalConsent approvalConsent = createScopeApprovalConsent();
+        Authorization authorization = createAuthorizationWithoutConsent();
+        authorization.setConsent(approvalConsent);
+
+        PlainConsent plainConsent = new PlainConsent();
+        plainConsent.setAction("Grant");
+        plainConsent.setSessionID(authorization.getSession().getId());
+        plainConsent.setSessionData(authorization.getSession().getData());
+
+        Mockito.when(webFormHandler.consent(
+                eq("app-id"),
+                eq("session-id"),
+                eq("session-data"),
+                eq(approvalConsent.getMissingScopes()),
+                any(BaseClient.CookieStorage.class))).thenReturn(plainConsent);
+        Mockito.when(authorizationApiHandler.submitConsent(anyString(), anyString(), anyString())).thenReturn("authCode");
+
+        authorizationFlowHandler.submitUserConsent(authorization);
+
+        assertThat(authorization.getAuthCode()).isEqualTo("authCode");
+    }
+
+    @Test(expected = UserConsentException.class)
+    public void testSubmitUserConsent_whenMissingScopesAndConfigDoesNotApproveByDefault_shouldThrowException() throws Exception {
+        authorizationFlowHandler = new AuthorizationFlowHandler(
+                getDefaultBuilder().defaultApproveMissingScopes(false).build(),
+                null,
+                webFormHandler,
+                authorizationApiHandler);
+        ScopeApprovalConsent approvalConsent = createScopeApprovalConsent();
+        Authorization authorization = createAuthorizationWithoutConsent();
+        authorization.setConsent(approvalConsent);
+
+        authorizationFlowHandler.submitUserConsent(authorization);
+    }
+
+    @Test(expected = UserConsentException.class)
+    public void testSubmitUserConsent_whenReturnedAuthCodeIsEmpty_shouldThrowException() throws Exception {
+        ScopeApprovalConsent approvalConsent = createScopeApprovalConsent();
+        Authorization authorization = createAuthorizationWithoutConsent();
+        authorization.setConsent(approvalConsent);
+
+        PlainConsent plainConsent = new PlainConsent();
+        plainConsent.setAction("Grant");
+        plainConsent.setSessionID(authorization.getSession().getId());
+        plainConsent.setSessionData(authorization.getSession().getData());
+
+        Mockito.when(webFormHandler.consent(
+                eq("app-id"),
+                eq("session-id"),
+                eq("session-data"),
+                eq(approvalConsent.getMissingScopes()),
+                any(BaseClient.CookieStorage.class))).thenReturn(plainConsent);
+        Mockito.when(authorizationApiHandler.submitConsent(anyString(), anyString(), anyString())).thenReturn("");
+
+        authorizationFlowHandler.submitUserConsent(authorization);
+
     }
 
     @Test
@@ -168,15 +128,21 @@ public class AuthorizationFlowHandlerTest extends BaseAuthorizationTest {
         assertThat(tokenProvider.getAccessToken()).isEqualToIgnoringCase("access-token");
     }
 
-    private SessionInformation createSessionInfo() {
-        return new SessionInformation("sessionId", "sessionData", "app-id");
+    private Authorization createAuthorizationWithoutConsent() {
+        Authorization authorization = new Authorization();
+        Authorization.Session session = new Authorization.Session();
+        session.setId("session-id");
+        session.setData("session-data");
+        authorization.setSession(session);
+        authorization.setAppId("app-id");
+        return authorization;
     }
 
-    private ConsentInformation createConsentInfo(SessionInformation sessionInfo) {
-        ConsentInformation consentInfo = new ConsentInformation();
-        consentInfo.setAction("Grant");
-        consentInfo.setSessionID(sessionInfo.getSessionID());
-        consentInfo.setSessionData(sessionInfo.getSessionData());
-        return consentInfo;
+    private ScopeApprovalConsent createScopeApprovalConsent() {
+        ScopeApprovalConsent consent = new ScopeApprovalConsent();
+        consent.setMissingScopes(Arrays.asList("scope-1", "scope-2"));
+        consent.setSessionData("session-data");
+        consent.setSessionID("session-id");
+        return consent;
     }
 }

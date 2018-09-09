@@ -25,7 +25,11 @@ The module itself returns a component which holds and provides the access token 
 ## <a id="usage"></a>Usage
 This section covers the detailed usage of the module. A bit more flexible example (config file based) implementation is shown in [mbdev-samples](../mbdev-samples).
 
-### Create OAuth Config ###
+### PKCE Support ###
+By enabling the PKCE ([Proof Key for Code Exchange](https://tools.ietf.org/html/rfc7636)) option (see below) in the config the client credentials have to explicitly support this.
+Only a client id is required when using this flow. The secret won't be used at any time. The default supported mode returned by the developer console will be non-PKCE compatible client credentials.
+
+### Create an OAuth Config ###
 Create an OAuth configuration for your application using the relevant information from your personal [Mercedes Benz Developer Console](https://developer.mercedes-benz.com/console). Most of the values are defined with a reasonable value.
 
 ```java
@@ -37,6 +41,7 @@ OAuthConfig config = OAuthConfig.builder()
     .redirectUri("http://localhost")                                // set by default (@see side note)
     .setTokenExpirybuffer(300)                                      // set by default to five minutes
     .scopes(Arrays.asList("scope1", "scope2"))                      // desired scopes
+    .usePKCE(false)                                                 // set by default
     .build();
 ```
 
@@ -44,6 +49,9 @@ The `TokenExpiryBuffer` describes the time which should be used upfront to refre
 the access token.
 
 Check the `scopes` you want to use. Since the current API only provides two scopes it is included in the config. To be more flexible it might also be a valid option to pass this along with the user credentials.
+In case a user wants to get a token for a client he or she never granted the scopes before the option `defaultApproveMissingScopes` (if set to true) will accept the scopes by default. This is a huge security risk since the user can't decide which scopes
+he wants to give access to. A more detailed user interaction will be provided in the future. The option is set to true by default. If set to false and there are missing scopes
+the authorization process will stop with an appropriate exception. 
 
 ### Trigger Initial Authorization Flow ###
 Use the `AuthorizationFlowHandler` to setup the respective feign clients and call it with the user's credentials to retrieve a `TokenProvider` for further API access.

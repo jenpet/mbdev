@@ -28,13 +28,18 @@ public class BaseAuthorizationIntegrationTest {
     public WireMockClassRule mockRule = mockClassRule;
 
     protected OAuthConfig createConfig() {
+        return getDefaultBuilder()
+                .build();
+    }
+
+    protected OAuthConfig.OAuthConfigBuilder getDefaultBuilder() {
         return OAuthConfig.builder()
                 .authorizationBaseUrl(MOCK_URL)
                 .loginBaseUrl(MOCK_URL)
                 .clientId("client-id")
                 .clientSecret("client-secret")
                 .redirectUri("http://localhost")
-                .scopes(Collections.singletonList("mb:vehicle:status:general"))
-                .build();
+                .scopes(Collections.singletonList("mb:vehicle:status:general"));
     }
+
 }

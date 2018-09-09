@@ -1,0 +1,22 @@
+{
+  "id" : "15cce511-7d0f-4a0b-bc47-58514ea9c694",
+  "name" : "oidc10_auth_oauth_v2_authorize",
+  "request" : {
+    "url" : "/oidc10/auth/oauth/v2/authorize?response_type=code&client_id=eligible-client&redirect_uri=http%3A%2F%2Flocalhost&scope=mb%3Avehicle%3Astatus%3Ageneral",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 302,
+    "body" : "",
+    "headers" : {
+      "Strict-Transport-Security" : "max-age=31536000; includeSubDomains",
+      "Location" : "/wl/login?action=display&sessionID=session-id-1&sessionData=session-data-1&app-id=ONEAPI.PROD",
+      "Content-Type" : "text/plain;charset=UTF-8",
+      "Date" : "Thu, 20 Sep 2018 17:40:33 GMT",
+      "Set-Cookie" : "TS015cbe2e=set-cookie-1; Path=/"
+    }
+  },
+  "uuid" : "15cce511-7d0f-4a0b-bc47-58514ea9c694",
+  "persistent" : true,
+  "insertionIndex" : 11
+}

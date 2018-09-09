@@ -6,10 +6,12 @@ package pet.jen.mbdev.api.auth.exception;
  *
  * @author Jens Petersohn <me@jen.pet>
  */
-public class UserConsentException extends RuntimeException {
+public class UserConsentException extends Exception {
+
     public UserConsentException(String message, Throwable cause) {
         super(message, cause);
     }
+
     public UserConsentException(String message) {
         super(message);
     }

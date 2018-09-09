@@ -4,7 +4,11 @@ package pet.jen.mbdev.api.auth.domain;
 import com.google.common.base.Strings;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a HTML body which is mainly only needed to extract input field values as strings.
@@ -22,7 +26,7 @@ class HtmlBody {
         doc = Jsoup.parse(html);
     }
 
-    public String extractInputFieldValue(String fieldName) {
+    public String extractInputFieldValueByName(String fieldName) {
         Elements fields = this.doc.select("input[name=" + fieldName+ "]");
 
         if(fields.size() != 1) {
@@ -33,5 +37,20 @@ class HtmlBody {
             throw new IllegalArgumentException("Could not extract field `" + fieldName + "` since attribute named value is not available.");
         }
         return fields.attr("value");
+    }
+
+    public boolean containsId(String id) {
+        return !this.doc.select("#" + id).isEmpty();
+    }
+
+    public List<String> extractInputCheckboxNamesByFormId(String formId) {
+        List<String> names = new ArrayList<>();
+        for(Element checkbox : this.doc.select("#" + formId + " input[type=checkbox]")) {
+            if(Strings.isNullOrEmpty(checkbox.attr("name"))) {
+                throw new IllegalArgumentException("Retrieved checkbox element from form with id " + formId + " with empty name.");
+            }
+            names.add(checkbox.attr("name"));
+        }
+        return names;
     }
 }

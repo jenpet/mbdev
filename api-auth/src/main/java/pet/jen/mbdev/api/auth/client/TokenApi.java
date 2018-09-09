@@ -17,6 +17,8 @@ public interface TokenApi extends IAMApi {
      * authorization code to succeed.
      * @param grantType will always be set to `authorization_code`
      * @param authorizationCode individual code for the session
+     * @param clientId
+     * @param codeVerifier
      * @param redirectUri has to be `http://localhost`
      * @return response object providing all token in case of success
      */
@@ -25,6 +27,8 @@ public interface TokenApi extends IAMApi {
     TokenInformation retrieve(
             @Param("grant_type") String grantType,
             @Param("code") String authorizationCode,
+            @Param("client_id") String clientId,
+            @Param("code_verifier") String codeVerifier,
             @Param("redirect_uri") String redirectUri);
 
     /**
