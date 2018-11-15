@@ -120,7 +120,7 @@ class OAuthTokenProvider implements TokenProvider {
     @Override
     public String refreshTokens() {
         String refreshToken = this.getTokenInfo().getRefreshToken();
-        TokenInformation tokenInformation = tokenApi.refresh("refresh_token", refreshToken);
+        TokenInformation tokenInformation = tokenApi.refresh("refresh_token", refreshToken, config.getClientId());
         tokenInformation.setTimestamp(new Date().getTime());
         saveTokenInformation(tokenInformation);
         return tokenInformation.getAccessToken();

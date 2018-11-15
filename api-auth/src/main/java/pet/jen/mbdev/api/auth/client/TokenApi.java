@@ -35,11 +35,13 @@ public interface TokenApi extends IAMApi {
      * Used to refresh tokens once tokens were received. Requires a valid refresh token.
      * @param grantType will always be set to `refresh_token`
      * @param refreshToken which was received in a previous request
+     * @param clientId
      * @return response object providing all token in case of success
      */
     @RequestLine("POST " + BASE_PATH + "/token")
     @Headers("Content-Type: application/x-www-form-urlencoded")
     TokenInformation refresh(
             @Param("grant_type") String grantType,
-            @Param("refresh_token") String refreshToken);
+            @Param("refresh_token") String refreshToken,
+            @Param("client_id")String clientId);
 }

@@ -125,7 +125,8 @@ public class OAuthTokenProviderTest extends BaseAuthorizationTest {
         TokenInformation oldTokens = provider.getTokenInfo();
         Mockito.when(tokenApi.refresh(
                 eq("refresh_token"),
-                eq("refresh-token-0"))).thenReturn(createTokens(1, 0));
+                eq("refresh-token-0"),
+                anyString())).thenReturn(createTokens(1, 0));
         String accessToken = provider.refreshTokens();
         assertThat(accessToken).isNotEqualToIgnoringCase(oldTokens.getAccessToken());
         assertThat(accessToken).isEqualTo("access-token-1");
@@ -143,7 +144,8 @@ public class OAuthTokenProviderTest extends BaseAuthorizationTest {
         TimeUnit.SECONDS.sleep(1);
         Mockito.when(tokenApi.refresh(
                 eq("refresh_token"),
-                eq("refresh-token-0"))).thenReturn(createTokens(2, 0));
+                eq("refresh-token-0"),
+                anyString())).thenReturn(createTokens(2, 0));
 
         String accessToken = provider.getAccessToken();
         assertThat(accessToken).isEqualTo("access-token-2");
@@ -157,7 +159,7 @@ public class OAuthTokenProviderTest extends BaseAuthorizationTest {
                 .config(createDefaultConfig())
                 .authCode("auth-code").build();
         assertThat(provider.getAccessToken()).isEqualTo("access-token-0");
-        Mockito.verify(tokenApi, Mockito.times(0)).refresh(anyString(), anyString());
+        Mockito.verify(tokenApi, Mockito.times(0)).refresh(anyString(), anyString(), anyString());
     }
 
     private void mockAuthCodeCall(int expiry) {
