@@ -28,17 +28,17 @@ public class MBDevApiErrorDecoder extends ErrorDecoder.Default {
     }
 
     private static String getUnauthorizedMessage(String methodKey, Response response, Exception e) {
-        return String.format("Api method call `%s` was apparently not authorized. \n%s",
+        return String.format("Api method call `%s` was apparently not authorized. %n%s",
                 methodKey, formatResult(response, e));
     }
 
     private static String getQuotaExceededMessage(String methodKey, Response response, Exception e) {
-        return String.format("Api method call `%s` was exceeding the quota limit. \n%s",
+        return String.format("Api method call `%s` was exceeding the quota limit. %n%s",
                 methodKey, formatResult(response, e));
     }
 
     private static String getDefaultMessage(String methodKey, Response response, Exception e) {
-        return String.format("An error occurred during api method call `%s`. \n%s",
+        return String.format("An error occurred during api method call `%s`. %n%s",
                 methodKey, formatResult(response, e));
     }
 

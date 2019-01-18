@@ -1,5 +1,6 @@
 package pet.jen.mbdev.api;
 
+import feign.RetryableException;
 import pet.jen.mbdev.api.exception.MBDevApiException;
 import pet.jen.mbdev.api.exception.UnauthorizedException;
 
@@ -59,14 +60,16 @@ public class ApiClientProxy implements InvocationHandler {
             return targetMethods.get(method.getName()).invoke(target, args);
         } catch (InvocationTargetException e) {
             // unwrap the actual exception and retry if applicable
-            if (e.getTargetException() instanceof UnauthorizedException && refreshes < TOKEN_REFRESH_TRY) {
+            if (e.getCause() instanceof UnauthorizedException && refreshes < TOKEN_REFRESH_TRY) {
                 // refresh the token so that another request with new tokens can be made
                 this.tokenProvider.refreshTokens();
                 return invoke(method, args, ++refreshes);
-            } else if (e.getTargetException() instanceof MBDevApiException) {
-                throw e.getTargetException();
+            } else if (e.getCause() instanceof MBDevApiException) {
+                throw e.getCause();
+            } else if (e.getCause() instanceof RetryableException) {
+                throw new MBDevApiException("Retryable error while requesting MBDevApi", (RetryableException) e.getCause());
             }
-            throw e;
+            throw e.getCause();
         }
     }
 }
