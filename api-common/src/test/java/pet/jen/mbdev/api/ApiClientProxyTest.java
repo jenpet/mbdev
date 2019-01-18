@@ -1,5 +1,6 @@
 package pet.jen.mbdev.api;
 
+import feign.RetryableException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,6 +12,7 @@ import pet.jen.mbdev.api.exception.UnauthorizedException;
 
 import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Date;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
@@ -78,7 +80,13 @@ public class ApiClientProxyTest {
         Mockito.verify(testClient, Mockito.times(2)).testMethod();
     }
 
-    @Test(expected = UndeclaredThrowableException.class)
+    @Test(expected = MBDevApiException.class)
+    public void testInvoke_whenRetryableExceptionOccurs_shouldShouldWrap() {
+        Mockito.when(testClient.testMethod()).thenThrow(new RetryableException("", new Date()));
+        proxiedTestClient.testMethod();
+    }
+
+    @Test(expected = RuntimeException.class)
     public void testInvoke_whenDifferentExceptionOccurs_shouldNotHandleException() {
         Mockito.when(testClient.testMethod()).thenThrow(new RuntimeException());
         proxiedTestClient.testMethod();
